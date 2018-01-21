@@ -15,10 +15,31 @@ var App = (function() {
         }
     })();
 
+    var HelperFunctions = (function(){
+
+        return {
+            toHex: function(str) {
+            	var hex = '';
+            	for(var i=0;i<str.length;i++) {
+            		hex += ''+str.charCodeAt(i).toString(16);
+            	}
+            	return hex;
+            },
+        }
+    }
 
     const CONTRACTS = ["Contract"];  // Case sensitive, omit '.json'
     var mainContract = "Contract";
+    var addr = web3.eth.accounts[0];
+    var msg = 'school bus';
+    var hex_msg = '0x' + toHex(msg);
+    let signature = web3.eth.sign(addr, hex_msg);
 
+    signature = signature.substr(2);
+    var r = '0x' + signature.slice(0, 64);
+    var s = '0x' + signature.slice(64, 128);
+    var v = '0x' + signature.slice(128, 130);
+    var v_decimal = web3.toDecimal(v);
 
     var debug_mode = true;
 
