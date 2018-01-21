@@ -2,12 +2,13 @@ var App = (function() {
     var UIController = (function() {
         'use strict';
 
-        var $message, $address, $message, $messageHash, $rParam, $sParam, $vParam, $copymnemonic, $signMessage;
+        var $message, $address, $message, $messageHash, $rParam, $sParam, $vParam, $copymnemonic, $signMessage, $signature;
 
         function attachUIListeners() {
             $address = $("#address");
             $message = $("#message");
             $messageHash = $("#message-hash");
+            $signature = $("#signature");
             $rParam = $("#r-param");
             $sParam = $("#s-param");
             $vParam = $("#v-param");
