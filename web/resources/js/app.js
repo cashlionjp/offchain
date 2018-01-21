@@ -2,15 +2,34 @@ var App = (function() {
     var UIController = (function() {
         'use strict';
 
+        var $message, $address, $message, $messageHash, $rParam, $sParam, $vParam, $copymnemonic, $signMessage;
+
         function attachUIListeners() {
-            $element = $("#element");
+            $address = $("#address");
+            $message = $("#message");
+            $messageHash = $("#message-hash");
+            $rParam = $("#r-param");
+            $sParam = $("#s-param");
+            $vParam = $("#v-param");
+            $copymnemonic = $("#copy-mnemonic-button");
+            $signMessage = $("#sign-message-button");
         }
 
         return {
             init: function(playFunc) {
                 attachUIListeners();
+                $address.val(web3.eth.accounts[0]);
+                UIController.attachMnemonicButtonClickListener();
             },
             clear: function() {
+            },
+            attachMnemonicButtonClickListener: function() {
+                $copymnemonic.click(function() {
+                    var copyText = document.getElementById("mnemonic");
+                    copyText.select();
+
+                    document.execCommand("Copy");
+                });
             },
         }
     })();
@@ -26,20 +45,15 @@ var App = (function() {
             	return hex;
             },
         }
-    }
+    })();
 
     const CONTRACTS = ["Contract"];  // Case sensitive, omit '.json'
     var mainContract = "Contract";
-    var addr = web3.eth.accounts[0];
-    var msg = 'school bus';
-    var hex_msg = '0x' + toHex(msg);
-    let signature = web3.eth.sign(addr, hex_msg);
-
-    signature = signature.substr(2);
-    var r = '0x' + signature.slice(0, 64);
-    var s = '0x' + signature.slice(64, 128);
-    var v = '0x' + signature.slice(128, 130);
-    var v_decimal = web3.toDecimal(v);
+    // var addr = web3.eth.accounts[0];
+    // var msg, hex_msg, r, s, v, v_decimal;
+    // let signature = web3.eth.sign(addr, hex_msg);
+    //
+    // signature = signature.substr(2);
 
     var debug_mode = true;
 
@@ -71,7 +85,7 @@ var App = (function() {
             for (var i = 0; i < CONTRACTS.length; i++) {
                 (function(i){
                     var currentContract = CONTRACTS[i];
-                    $.getJSON('/web/contracts/' + currentContract + ".json", function(data) {
+                    $.getJSON('contracts/' + currentContract + ".json", function(data) {
                         // Get the necessary contract artifact file and instantiate it with truffle-contract.
                         debug("Connection Established to: " + currentContract);
                         App.contracts[currentContract] = TruffleContract(data);
@@ -97,23 +111,16 @@ var App = (function() {
                 });
         },
         play: function() {
-            if (UIController.userCanPlay()) {
+            if (true) {
                 var dbg = {
-                    M1: "User playing game..",
+                    M1: "Calling Contract..",
                     M2: "Received Result: ",
                 }
                 var funcs = {
                     call: function(instance){
-                        user = UIController.getUsername();
-                        choice = UIController.getUserChoice();
-                        pass = web3.sha3(UIController.getPassword() + choice);
-                        console.log("User: " + user + ", Choice: " + choice + ", Pass: " + pass);
-                        return instance.play(pass, user, {from: web3.eth.accounts[0],value: web3.toWei(UIController.getAmount(), 'ether')});
+                        return instance.play();
                     },
                     callback: function(result){
-                          alert("Waiting for other player.");
-                          GameController.setMode(GameController.modes().WAITING);
-                          // }
                           debug(result);
                     }
                 }
@@ -131,58 +138,16 @@ $(window).on('load', function() {
 });
 
 
-
-const VerifierArtifact = require('./build/contracts/Verifier')
-const Verifier = contract(VerifierArtifact)
-Verifier.setProvider(provider)
-
-function toHex(str) {
-	var hex = '';
-	for(var i=0;i<str.length;i++) {
-		hex += ''+str.charCodeAt(i).toString(16);
-	}
-	return hex;
-}
-
-const addr = web3.eth.accounts[0]
-const msg = 'school bus'
-const hex_msg = '0x' + toHex(msg)
-let signature = web3.eth.sign(addr, hex_msg)
-
-console.log(`address -----> ${addr}`)
-console.log(`msg ---------> ${msg}`)
-console.log(`hex(msg) ----> ${hex_msg}`)
-console.log(`sig ---------> ${signature}`)
-
-signature = signature.substr(2);
-const r = '0x' + signature.slice(0, 64)
-const s = '0x' + signature.slice(64, 128)
-const v = '0x' + signature.slice(128, 130)
-const v_decimal = web3.toDecimal(v)
-
-console.log(`r -----------> ${r}`)
-console.log(`s -----------> ${s}`)
-console.log(`v -----------> ${v}`)
-console.log(`vd ----------> ${v_decimal}`)
-
-Verifier
-  .deployed()
-  .then(instance => {
-    const fixed_msg = `\x19Ethereum Signed Message:\n${msg.length}${msg}`
-    const fixed_msg_sha = web3.sha3(fixed_msg)
-    return instance.recoverAddr.call(
-      fixed_msg_sha,
-      v_decimal,
-      r,
-      s
-    )
-  })
-  .then(data => {
-    console.log('-----data------')
-    console.log(`input addr ==> ${addr}`)
-    console.log(`output addr => ${data}`)
-  })
-  .catch(e => {
-    console.log('i got an error')
-    console.log(e)
-  })
+// addr = web3.eth.accounts[0];
+// msg = 'test message';
+// hash_msg = web3.sha3(msg);
+// signature = web3.eth.sign(addr, hash_msg);
+//
+// signature = signature.substr(2);
+// r = '0x' + signature.slice(0, 64);
+// s = '0x' + signature.slice(64, 128);
+// v = '0x' + signature.slice(128, 130);
+// v_decimal = web3.toDecimal(v);
+// v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
+//
+// contract.verify(hashmsg, v_decimal, r, s);
