@@ -1,5 +1,7 @@
 const ethUtil = require('ethereumjs-util');
 const sigUtil = require('eth-sig-util');
+var Eth = require('ethjs');
+window.Eth = Eth;
 
 var App = (function() {
     var UIController = (function() {
@@ -9,37 +11,37 @@ var App = (function() {
 
         function attachUIListeners() {
             $address = $("#address");
-            $message = $("#message");
-            $messageHash = $("#message-hash");
             $signature = $("#signature");
             $rParam = $("#r-param");
             $sParam = $("#s-param");
             $vParam = $("#v-param");
+
+            $message = $("#message");
+            $messageHash = $("#message-hash");
+            $message.on("input", function(){
+                $messageHash.val(web3.sha3($message.val()));
+            });
+
             $copymnemonic = $("#copy-mnemonic-button");
+            $copymnemonic.click(function() {
+                var copyText = document.getElementById("mnemonic");
+                copyText.select();
+
+                document.execCommand("Copy");
+            });
+
             $signMessage = $("#sign-message-button");
+            $signMessage.click(function() {
+                sign();
+            });
         }
 
         return {
             init: function(playFunc) {
                 attachUIListeners();
                 $address.val(web3.eth.accounts[0]);
-                UIController.attachMnemonicButtonClickListener();
-                UIController.attachSignMessageClickListener();
             },
             clear: function() {},
-            attachMnemonicButtonClickListener: function() {
-                $copymnemonic.click(function() {
-                    var copyText = document.getElementById("mnemonic");
-                    copyText.select();
-
-                    document.execCommand("Copy");
-                });
-            },
-            attachSignMessageClickListener: function() {
-                $signMessage.click(function() {
-                    sign();
-                });
-            },
             getMessage: function() {
                 return $message.val();
             },
@@ -79,15 +81,15 @@ var App = (function() {
         eth.personal_sign(msg, from)
             .then((signed) => {
                 console.log('Signed!  Result is: ', signed);
-                console.log('Recovering...');
                 UIController.setSignature(signed);
-                UIController.setMessageHash(msg);
+                console.log('Recovering...');
                 return eth.personal_ecRecover(msg, signed);
             })
             .then((recovered) => {
 
                 if (recovered === from) {
                     console.log('Ethjs recovered the message signer!');
+                    console.log(recovered);
                 } else {
                     console.log('Ethjs failed to recover the message signer!');
                     console.dir({
@@ -97,23 +99,6 @@ var App = (function() {
             });
     }
 
-
-    const CONTRACTS = ["Contract"]; // Case sensitive, omit '.json'
-    var mainContract = "Contract";
-    // var addr = web3.eth.accounts[0];
-    // var msg, hex_msg, r, s, v, v_decimal;
-    // let signature = web3.eth.sign(addr, hex_msg);
-    //
-    // signature = signature.substr(2);
-
-    var debug_mode = true;
-
-    function debug(str) {
-        if (debug_mode) {
-            console.log(str);
-        }
-    }
-
     return {
         web3Provider: null,
         contracts: {},
@@ -121,62 +106,14 @@ var App = (function() {
         events: {},
 
         init: function() {
-            debug("Initializing Web App.");
-            return App.initWeb3();
+            console.log("Initializing Web App.");
+            return this.initWeb3();
         },
         initWeb3: function() {
-            debug("Connecting to Web3 Provider..");
+            console.log("Connecting to Web3 Provider..");
             // Initialize web3 and set the provider
             HelperUtil.initWeb3(App);
-            return App.initContract();
-        },
-
-        initContract: function() {
-            debug("Retrieving Smart Contract Artifacts...");
-            for (var i = 0; i < CONTRACTS.length; i++) {
-                (function(i) {
-                    var currentContract = CONTRACTS[i];
-                    $.getJSON('contracts/' + currentContract + ".json", function(data) {
-                        // Get the necessary contract artifact file and instantiate it with truffle-contract.
-                        debug("Connection Established to: " + currentContract);
-                        App.contracts[currentContract] = TruffleContract(data);
-                        // Set the provider for our contract.
-                        App.contracts[currentContract].setProvider(App.web3Provider);
-                        debug(currentContract + " Artifact Saved.");
-                        if (i == CONTRACTS.length - 1) {
-                            return App.bindEvents();
-                        }
-                    });
-                })(i);
-            }
-
-            return true;
-        },
-        callContract: function(debugmsg, funcs) {
-            debug(debugmsg.M1);
-            App.contracts[mainContract].deployed().then(funcs.call).then(function(result) {
-                debug(debugmsg.M2);
-                return result;
-            }).then(funcs.callback).catch(function(err) {
-                debug(err.message);
-            });
-        },
-        play: function() {
-            if (true) {
-                var dbg = {
-                    M1: "Calling Contract..",
-                    M2: "Received Result: ",
-                }
-                var funcs = {
-                    call: function(instance) {
-                        return instance.play();
-                    },
-                    callback: function(result) {
-                        debug(result);
-                    }
-                }
-                App.callContract(dbg, funcs);
-            }
+            return this.bindEvents();
         },
         bindEvents: function() {
             UIController.init();
@@ -193,11 +130,11 @@ var HelperUtil = (function() {
         initWeb3: function(app) {
             if (typeof web3 !== 'undefined') {
                 // Use embedded web3 object if it exists
-                App.web3Provider = web3.currentProvider;
+                app.web3Provider = web3.currentProvider;
                 web3 = new Web3(web3.currentProvider);
             } else {
                 // set custom web3 provider
-                App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
+                app.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
                 web3 = new Web3(App.web3Provider);
             }
             this.checkWeb3Info();
