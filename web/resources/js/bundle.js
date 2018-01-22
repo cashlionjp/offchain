@@ -43,11 +43,17 @@ var App = (function() {
             getMessage: function() {
                 return $message.val();
             },
-            setSignature: function(val) {
-                $signature.val(val);
+            setSignature: function(signature) {
+                $signature.val(signature);
+                signature = signature.substr(2);
+                UIController.setR('0x' + signature.slice(0, 64));
+                UIController.setS('0x' + signature.slice(64, 128));
+                var v_decimal = web3.toDecimal('0x' + signature.slice(128, 130));
+                v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
+                UIController.setV(v_decimal);
             },
-            setMessageHash: function(val) {
-                $messageHash.val(val);
+            setMessageHash: function() {
+                $messageHash.val(web3.sha3($message.val()));
             },
             setR: function(val) {
                 $rParam.val(val);
@@ -66,11 +72,6 @@ var App = (function() {
                 type: 'string', // Any valid solidity type
                 name: 'Message', // Any string label you want
                 value: UIController.getMessage() // The value to sign
-            },
-            {
-                type: 'uint32',
-                name: 'A number',
-                value: '1337'
             }
         ]
         // signMsg(msgParams, web3.eth.accounts[0]);
@@ -91,17 +92,19 @@ var App = (function() {
             if (result.error) {
                 return console.error(result.error.message);
             }
+            UIController.setSignature(result.result);
+            UIController.setMessageHash();
             console.log(result);
             const recovered = sigUtil.recoverTypedSignature({
                 data: msgParams,
                 sig: result.result
             })
             if (recovered === from) {
-                alert('Recovered signer: ' + from)
+                // alert('Recovered signer: ' + from)
             } else {
-                alert('Failed to verify signer, got: ' + result)
+                // alert('Failed to verify signer, got: ' + result)
             }
-        })
+        });
     }
 
     const CONTRACTS = ["Contract"]; // Case sensitive, omit '.json'
