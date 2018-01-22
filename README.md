@@ -1,1 +1,33 @@
-# Simple dapp testing off chain message signing
+# OffTheChain
+
+Simple DAPP testing:
+* Message Signing - Completed as of v0.1.0 - 276fdfb7807880fab43b1cd57ebf4afbc2deb434
+* P2P communication
+
+BUILD INSTRUCTIONS:
+
+Requires:
+* TruffleFramework
+* Ganache or some other testnet
+* Browserify
+
+Run:
+```bash
+cd <Project Root DIR>
+truffle compile
+truffle migrate
+
+browserify web/resources/js/app.js -o web/resources/js/bundle.js
+```
+
+Manually copy build/contracts/Contract.json to web/contracts/
+or
+```bash
+mkdir web/contracts && cp build/contracts/Contract.json web/contracts/
+```
+
+Manually copy web/ to server path
+or
+```bash
+cp -rT web/ /var/www/html/
+```
