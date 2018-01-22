@@ -25,8 +25,7 @@ var App = (function() {
                 UIController.attachMnemonicButtonClickListener();
                 UIController.attachSignMessageClickListener();
             },
-            clear: function() {
-            },
+            clear: function() {},
             attachMnemonicButtonClickListener: function() {
                 $copymnemonic.click(function() {
                     var copyText = document.getElementById("mnemonic");
@@ -40,49 +39,69 @@ var App = (function() {
                     sign();
                 });
             },
-            getMessage: function(){
+            getMessage: function() {
                 return $message.val();
             },
-            setSignature: function(val){
+            setSignature: function(val) {
                 $signature.val(val);
             },
-            setMessageHash: function(val){
+            setMessageHash: function(val) {
                 $messageHash.val(val);
             },
-            setR: function(val){
+            setR: function(val) {
                 $rParam.val(val);
             },
-            setS: function(val){
+            setS: function(val) {
                 $sParam.val(val);
             },
-            setV: function(val){
+            setV: function(val) {
                 $vParam.val(val);
             }
         }
     })();
 
-    function sign(){
-        var addr = web3.eth.accounts[0];
-        var msg = UIController.getMessage();
-        var hash_msg = web3.sha3(msg);
-        UIController.setMessageHash(hash_msg);
-        var signature;
-        web3.eth.sign(addr, hash_msg, function(result){
-            signature = result;
-        });
-        UIController.setSignature(signature);
-        signature = signature.substr(2);
-        r = '0x' + signature.slice(0, 64);
-        UIController.setR(r);
-        s = '0x' + signature.slice(64, 128);
-        UIController.setS(s);
-        v = '0x' + signature.slice(128, 130);
-        v_decimal = web3.toDecimal(v);
-        v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
-        UIController.setV(v_decimal);
+    function sign() {
+        const msgParams = [{
+                type: 'string', // Any valid solidity type
+                name: 'Message', // Any string label you want
+                value: UIController.getMessage() // The value to sign
+            },
+            {
+                type: 'uint32',
+                name: 'A number',
+                value: '1337'
+            }
+        ]
+        web3.eth.getAccounts(function(err, accounts) {
+            if (!accounts) return
+            signMsg(msgParams, accounts[0])
+        })
     }
 
-    const CONTRACTS = ["Contract"];  // Case sensitive, omit '.json'
+    function signMsg(msgParams, from) {
+        web3.currentProvider.sendAsync({
+            method: 'eth_signTypedData',
+            params: [msgParams, from],
+            from: from,
+        }, function(err, result) {
+            if (err) return console.error(err)
+            if (result.error) {
+                return console.error(result.error.message)
+            }
+            console.log(result);
+            const recovered = sigUtil.recoverTypedSignature({
+                data: msgParams,
+                sig: result.result
+            })
+            if (recovered === from) {
+                alert('Recovered signer: ' + from)
+            } else {
+                alert('Failed to verify signer, got: ' + result)
+            }
+        })
+    }
+
+    const CONTRACTS = ["Contract"]; // Case sensitive, omit '.json'
     var mainContract = "Contract";
     // var addr = web3.eth.accounts[0];
     // var msg, hex_msg, r, s, v, v_decimal;
@@ -118,7 +137,7 @@ var App = (function() {
         initContract: function() {
             debug("Retrieving Smart Contract Artifacts...");
             for (var i = 0; i < CONTRACTS.length; i++) {
-                (function(i){
+                (function(i) {
                     var currentContract = CONTRACTS[i];
                     $.getJSON('contracts/' + currentContract + ".json", function(data) {
                         // Get the necessary contract artifact file and instantiate it with truffle-contract.
@@ -127,7 +146,7 @@ var App = (function() {
                         // Set the provider for our contract.
                         App.contracts[currentContract].setProvider(App.web3Provider);
                         debug(currentContract + " Artifact Saved.");
-                        if (i == CONTRACTS.length -1) {
+                        if (i == CONTRACTS.length - 1) {
                             return App.bindEvents();
                         }
                     });
@@ -136,14 +155,14 @@ var App = (function() {
 
             return true;
         },
-        callContract: function(debugmsg, funcs){
-                debug(debugmsg.M1);
-                App.contracts[mainContract].deployed().then(funcs.call).then(function(result){
-                    debug(debugmsg.M2);
-                    return result;
-                }).then(funcs.callback).catch(function(err) {
-                    debug(err.message);
-                });
+        callContract: function(debugmsg, funcs) {
+            debug(debugmsg.M1);
+            App.contracts[mainContract].deployed().then(funcs.call).then(function(result) {
+                debug(debugmsg.M2);
+                return result;
+            }).then(funcs.callback).catch(function(err) {
+                debug(err.message);
+            });
         },
         play: function() {
             if (true) {
@@ -152,11 +171,11 @@ var App = (function() {
                     M2: "Received Result: ",
                 }
                 var funcs = {
-                    call: function(instance){
+                    call: function(instance) {
                         return instance.play();
                     },
-                    callback: function(result){
-                          debug(result);
+                    callback: function(result) {
+                        debug(result);
                     }
                 }
                 App.callContract(dbg, funcs);
