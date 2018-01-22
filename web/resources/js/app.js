@@ -21,6 +21,7 @@ var App = (function() {
                 attachUIListeners();
                 $address.val(web3.eth.accounts[0]);
                 UIController.attachMnemonicButtonClickListener();
+                UIController.attachSignMessageClickListener();
             },
             clear: function() {
             },
@@ -32,21 +33,52 @@ var App = (function() {
                     document.execCommand("Copy");
                 });
             },
-        }
-    })();
-
-    var HelperFunctions = (function(){
-
-        return {
-            toHex: function(str) {
-            	var hex = '';
-            	for(var i=0;i<str.length;i++) {
-            		hex += ''+str.charCodeAt(i).toString(16);
-            	}
-            	return hex;
+            attachSignMessageClickListener: function() {
+                $signMessage.click(function() {
+                    sign();
+                });
             },
+            getMessage: function(){
+                return $message.val();
+            },
+            setSignature: function(val){
+                $signature.val(val);
+            },
+            setMessageHash: function(val){
+                $messageHash.val(val);
+            },
+            setR: function(val){
+                $rParam.val(val);
+            },
+            setS: function(val){
+                $sParam.val(val);
+            },
+            setV: function(val){
+                $vParam.val(val);
+            }
         }
     })();
+
+    function sign(){
+        var addr = web3.eth.accounts[0];
+        var msg = UIController.getMessage();
+        var hash_msg = web3.sha3(msg);
+        UIController.setMessageHash(hash_msg);
+        var signature;
+        web3.eth.sign(addr, hash_msg, function(result){
+            signature = result;
+        });
+        UIController.setSignature(signature);
+        signature = signature.substr(2);
+        r = '0x' + signature.slice(0, 64);
+        UIController.setR(r);
+        s = '0x' + signature.slice(64, 128);
+        UIController.setS(s);
+        v = '0x' + signature.slice(128, 130);
+        v_decimal = web3.toDecimal(v);
+        v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
+        UIController.setV(v_decimal);
+    }
 
     const CONTRACTS = ["Contract"];  // Case sensitive, omit '.json'
     var mainContract = "Contract";
@@ -143,12 +175,12 @@ $(window).on('load', function() {
 // msg = 'test message';
 // hash_msg = web3.sha3(msg);
 // signature = web3.eth.sign(addr, hash_msg);
-//
+
 // signature = signature.substr(2);
 // r = '0x' + signature.slice(0, 64);
 // s = '0x' + signature.slice(64, 128);
 // v = '0x' + signature.slice(128, 130);
 // v_decimal = web3.toDecimal(v);
 // v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
-//
+
 // contract.verify(hashmsg, v_decimal, r, s);
