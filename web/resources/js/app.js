@@ -1,3 +1,5 @@
+const sigUtil = require('eth-sig-util')
+
 var App = (function() {
     var UIController = (function() {
         'use strict';
