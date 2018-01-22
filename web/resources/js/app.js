@@ -1,4 +1,5 @@
-const sigUtil = require('eth-sig-util')
+const ethUtil = require('ethereumjs-util');
+const sigUtil = require('eth-sig-util');
 
 var App = (function() {
     var UIController = (function() {
