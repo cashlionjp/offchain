@@ -1,13 +1,17 @@
-// const ethUtil = require('ethereumjs-util');
 const sigUtil = require('eth-sig-util');
-// var Eth = require('ethjs');
-// window.Eth = Eth;
 
 const App = (function() {
+
     var UIController = (function() {
         'use strict';
 
-        var $message, $address, $message, $messageHash, $rParam, $sParam, $vParam, $copymnemonic, $signMessage, $signature;
+        var $message, $address, $message, $messageHash, $rParam, $sParam,
+            $vParam, $copymnemonic, $signMessage, $signature, $number;
+
+        function updateHash() {
+            var typedParams = msgParams($message.val(), $number.val());
+            $messageHash.val(sigUtil.typedSignatureHash(typedParams));
+        }
 
         function attachUIListeners() {
             $address = $("#address");
@@ -16,11 +20,12 @@ const App = (function() {
             $sParam = $("#s-param");
             $vParam = $("#v-param");
 
-            $message = $("#message");
             $messageHash = $("#message-hash");
-            $message.on("input", function() {
-                $messageHash.val(web3.sha3($message.val()));
-            });
+
+            $number = $("#number");
+            $number.on("input", updateHash);
+            $message = $("#message");
+            $message.on("input", updateHash);
 
             $copymnemonic = $("#copy-mnemonic-button");
             $copymnemonic.click(function() {
@@ -44,6 +49,9 @@ const App = (function() {
             clear: function() {},
             getMessage: function() {
                 return $message.val();
+            },
+            getNumber: function() {
+                return $number.val();
             },
             setSignature: function(signature) {
                 $signature.val(signature);
@@ -69,22 +77,29 @@ const App = (function() {
         }
     })();
 
-    function sign() {
-        const msgParams = [{
+    function msgParams(message, num) {
+        'use strict';
+        var output = [{
             type: 'string', // Any valid solidity type
             name: 'Message', // Any string label you want
-            value: UIController.getMessage() // The value to sign
+            value: message // The value to sign
         }, {
             type: 'uint32',
             name: 'A number',
-            value: '1337'
+            value: num
         }];
+        return output;
+    }
+
+    function sign() {
         web3.eth.getAccounts(function(err, accounts) {
             if (!accounts) return
+            var msg = UIController.getMessage();
+            var num = UIController.getNumber();
             var from = accounts[0];
             web3.currentProvider.sendAsync({
                 method: 'eth_signTypedData',
-                params: [msgParams, from],
+                params: [msgParams(msg, num), from],
                 from: from,
             }, function(err, result) {
                 if (err) return console.error(err)
