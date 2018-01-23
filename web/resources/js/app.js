@@ -3,7 +3,7 @@ const sigUtil = require('eth-sig-util');
 // var Eth = require('ethjs');
 // window.Eth = Eth;
 
-var App = (function() {
+const App = (function() {
     var UIController = (function() {
         'use strict';
 
