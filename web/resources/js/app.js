@@ -73,7 +73,7 @@ var App = (function() {
         const msgParams = [{
             type: 'string', // Any valid solidity type
             name: 'message', // Any string label you want
-            value: 'test' // The value to sign
+            value: UIController.getMessage() // The value to sign
         }];
         // {
         //     type: 'uint32',
