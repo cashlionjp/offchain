@@ -11,23 +11,22 @@ Requires:
 * Ganache or some other testnet
 * Browserify
 
-Run:
+To package app.js dependancies without node.js
+```bash
+browserify web/resources/js/app.js -o web/resources/js/bundle.js
+```
+
+To Run:
 ```bash
 cd <Project Root DIR>
 truffle compile
 truffle migrate
 
-browserify web/resources/js/app.js -o web/resources/js/bundle.js
-```
-
-Manually copy build/contracts/Contract.json to web/contracts/
-or
-```bash
+# Manually copy build/contracts/Contract.json to web/contracts/
+# or
 mkdir web/contracts && cp build/contracts/Contract.json web/contracts/
-```
 
-Manually copy web/ to server path
-or
-```bash
+# Manually copy web/ to server path
+# or
 cp -rT web/ /var/www/html/
 ```
