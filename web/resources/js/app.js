@@ -1,7 +1,7 @@
-const ethUtil = require('ethereumjs-util');
+// const ethUtil = require('ethereumjs-util');
 const sigUtil = require('eth-sig-util');
-var Eth = require('ethjs');
-window.Eth = Eth;
+// var Eth = require('ethjs');
+// window.Eth = Eth;
 
 var App = (function() {
     var UIController = (function() {
@@ -18,7 +18,7 @@ var App = (function() {
 
             $message = $("#message");
             $messageHash = $("#message-hash");
-            $message.on("input", function(){
+            $message.on("input", function() {
                 $messageHash.val(web3.sha3($message.val()));
             });
 
@@ -70,33 +70,40 @@ var App = (function() {
     })();
 
     function sign() {
-        var msg = ethUtil.bufferToHex(new Buffer(UIController.getMessage(), 'utf8'));
-        var from = web3.eth.accounts[0];
-        console.log(msg);
-        var params = [from, msg];
-
-        // Now with Eth.js
-        var eth = new Eth(web3.currentProvider);
-
-        eth.personal_sign(msg, from)
-            .then((signed) => {
-                console.log('Signed!  Result is: ', signed);
-                UIController.setSignature(signed);
-                console.log('Recovering...');
-                return eth.personal_ecRecover(msg, signed);
-            })
-            .then((recovered) => {
-
-                if (recovered === from) {
-                    console.log('Ethjs recovered the message signer!');
-                    console.log(recovered);
-                } else {
-                    console.log('Ethjs failed to recover the message signer!');
-                    console.dir({
-                        recovered
-                    });
+        const msgParams = [{
+            type: 'string', // Any valid solidity type
+            name: 'message', // Any string label you want
+            value: 'test' // The value to sign
+        }];
+        // {
+        //     type: 'uint32',
+        //     name: 'A number',
+        //     value: '1337'
+        // }];
+        web3.eth.getAccounts(function(err, accounts) {
+            if (!accounts) return
+            var from = accounts[0];
+            web3.currentProvider.sendAsync({
+                method: 'eth_signTypedData',
+                params: [msgParams, from],
+                from: from,
+            }, function(err, result) {
+                if (err) return console.error(err)
+                if (result.error) {
+                    return console.error(result.error.message)
                 }
-            });
+                UIController.setSignature(result.result);
+                const recovered = sigUtil.recoverTypedSignature({
+                    data: msgParams,
+                    sig: result.result
+                })
+                if (recovered === from) {
+                    alert('Recovered signer: ' + from)
+                } else {
+                    alert('Failed to verify signer, got: ' + result)
+                }
+            })
+        });
     }
 
     return {
@@ -183,3 +190,4 @@ var HelperUtil = (function() {
 // v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
 
 // contract.verify(hashmsg, v_decimal, r, s);
+0x74657374
