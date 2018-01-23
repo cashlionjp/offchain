@@ -73,14 +73,13 @@ var App = (function() {
     function sign() {
         const msgParams = [{
             type: 'string', // Any valid solidity type
-            name: 'message', // Any string label you want
-            value: 'test' // The value to sign
+            name: 'Message', // Any string label you want
+            value: UIController.getMessage() // The value to sign
+        }, {
+            type: 'uint32',
+            name: 'A number',
+            value: '1337'
         }];
-        // {
-        //     type: 'uint32',
-        //     name: 'A number',
-        //     value: '1337'
-        // }];
         web3.eth.getAccounts(function(err, accounts) {
             if (!accounts) return
             var from = accounts[0];
