@@ -9,6 +9,7 @@ BUILD INSTRUCTIONS:
 Requires:
 * TruffleFramework
 * Ganache or some other testnet
+
 To package app.js dependancies without node.js
 * Browserify
 ```bash
