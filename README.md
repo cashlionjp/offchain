@@ -21,14 +21,12 @@ To Run:
 cd <Project Root DIR>
 truffle compile
 truffle migrate
-```
-Manually copy build/contracts/Contract.json to web/contracts/
-or
-```bash
+
+# Manually copy build/contracts/Contract.json to web/contracts/
+# or
 mkdir web/contracts && cp build/contracts/Contract.json web/contracts/
-```
-Manually copy web/ to server path
-or
-```bash
+
+# Manually copy web/ to server path
+# or
 cp -rT web/ /var/www/html/
 ```
