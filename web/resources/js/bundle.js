@@ -4,7 +4,7 @@ const sigUtil = require('eth-sig-util');
 // var Eth = require('ethjs');
 // window.Eth = Eth;
 
-var App = (function() {
+const App = (function() {
     var UIController = (function() {
         'use strict';
 
@@ -177,20 +177,6 @@ var HelperUtil = (function() {
         }
     }
 })();
-// addr = web3.eth.accounts[0];
-// msg = 'test message';
-// hash_msg = web3.sha3(msg);
-// signature = web3.eth.sign(addr, hash_msg);
-
-// signature = signature.substr(2);
-// r = '0x' + signature.slice(0, 64);
-// s = '0x' + signature.slice(64, 128);
-// v = '0x' + signature.slice(128, 130);
-// v_decimal = web3.toDecimal(v);
-// v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
-
-// contract.verify(hashmsg, v_decimal, r, s);
-0x74657374
 
 },{"eth-sig-util":26}],2:[function(require,module,exports){
 // Reference https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
