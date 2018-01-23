@@ -72,7 +72,7 @@ var App = (function() {
     function sign() {
         var msg = ethUtil.bufferToHex(new Buffer(UIController.getMessage(), 'utf8'));
         var from = web3.eth.accounts[0];
-
+        console.log(msg);
         var params = [from, msg];
 
         // Now with Eth.js

@@ -16,4 +16,13 @@ contract Contract {
         bytes32 prefixedHash = keccak256(prefix, hash);
         return ecrecover(prefixedHash, v, r, s);
     }
+
+    function doHash(string message) public pure returns (bytes32) {
+        return keccak256(keccak256('string message'), keccak256(message));
+	}
+
+	function checkSignature(string message, bytes32 r, bytes32 s, uint8 v) public pure returns (address) {
+	  var hash = doHash(message);
+    return ecrecover(hash, v, r, s);
+	}
 }
