@@ -2,7 +2,8 @@
 
 Simple DAPP testing:
 * Message Signing - Completed as of v0.1.0 - 276fdfb7807880fab43b1cd57ebf4afbc2deb434
-* P2P communication
+* P2P communication:
+  * Looking into OrbitDB
 
 BUILD INSTRUCTIONS:
 
