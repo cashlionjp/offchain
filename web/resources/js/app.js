@@ -56,11 +56,11 @@ const App = (function() {
             setSignature: function(signature) {
                 $signature.val(signature);
                 signature = signature.substr(2);
-                UIController.setR('0x' + signature.slice(0, 64));
-                UIController.setS('0x' + signature.slice(64, 128));
+                this.setR('0x' + signature.slice(0, 64));
+                this.setS('0x' + signature.slice(64, 128));
                 var v_decimal = web3.toDecimal('0x' + signature.slice(128, 130));
                 v_decimal = v_decimal < 27 ? v_decimal + 27 : v_decimal;
-                UIController.setV(v_decimal);
+                this.setV(v_decimal);
             },
             setMessageHash: function(val) {
                 $messageHash.val(val);
